@@ -2,10 +2,10 @@ var G_MATRIX = {
 
     config: {
 
-        matsize: 5, // size of the side of the square.
+        matsize: 100, // size of the side of the square.
                      // eg: 64 creates a 64x64 matrix.
         
-        cellsize: 20,  // size of the side of a single cell
+        cellsize: 2,  // size of the side of a single cell
         
         colors: ['black', 'white'], // [background, foreground]
 
@@ -19,19 +19,24 @@ var G_MATRIX = {
 
     get_cell_value: function (i, j) {
 
-        if (i<0)
+        if (i<0) {
             i += this.config.matsize;
+	}
 
-        if (i >= this.config.matsize)
+        if (i >= this.config.matsize) {
             i -= this.config.matsize;
-
-        if (j < 0)
+	}
+	
+        if (j < 0) {
             j += this.config.matsize;
+	}
 
-        if (j >= this.config.matsize)
+        if (j >= this.config.matsize) {
             j -= this.config.matsize;
+	}
+	
 
-        return this.cells[i][j];
+        return this.cells[i + j*this.config.matsize];
     },
 
     // draw the matrix on the context given in argument
@@ -40,14 +45,12 @@ var G_MATRIX = {
         var y = this.config.start_pos[1];
         var line;
 
-        for (var i = 0; i < this.cells.length; i++) {
-            line = this.cells[i];
-
-            for (var j = 0; j < line.length; j++) {
+        for (var i = 0; i < this.config.matsize; i++) {
+            for (var j = 0; j < this.config.matsize; j++) {
 
                 context.beginPath();
                 context.rect(x, y, this.config.cellsize, this.config.cellsize);
-                context.fillStyle = this.config.colors[line[j]];
+                context.fillStyle = this.config.colors[this.get_cell_value(j, i)];
                 context.fill();
 
                 if (this.config.stroked)
@@ -68,27 +71,22 @@ var G_MATRIX = {
     next_iteration: function() {
         
         newmatrix = [];
-        firstline = [];
-        lastline = [];
         
-        for (i=0; i <= this.cells.length - 1; ++i) {
-
-            newline = []
-
-            for (j=0; j <= this.cells.length-1; ++j) {
+        for (i=0; i < this.config.matsize; ++i) {
+            for (j=0; j < this.config.matsize; ++j) {
 
                 // gathering the number of live neighbours
-                neighbours = this.get_cell_value(i-1, j-1);
-                neighbours += this.get_cell_value(i-1, j);
-                neighbours += this.get_cell_value(i-1, j+1);
-                neighbours += this.get_cell_value(i, j-1);
-                neighbours += this.get_cell_value(i, j+1);
-                neighbours += this.get_cell_value(i+1, j-1);
-                neighbours += this.get_cell_value(i+1, j);
-                neighbours += this.get_cell_value(i+1, j+1);            
+                neighbours = this.get_cell_value(j-1, i-1);
+                neighbours += this.get_cell_value(j-1, i);
+                neighbours += this.get_cell_value(j-1, i+1);
+                neighbours += this.get_cell_value(j, i-1);
+                neighbours += this.get_cell_value(j, i+1);
+                neighbours += this.get_cell_value(j+1, i-1);
+                neighbours += this.get_cell_value(j+1, i);
+                neighbours += this.get_cell_value(j+1, i+1);            
 
                 // the current value of the cell
-                value = this.get_cell_value(i, j);
+                value = this.get_cell_value(j, i);
 
                 // modification of the value according to Conway's laws
                 if (value === 1) {
@@ -100,9 +98,8 @@ var G_MATRIX = {
                     if (neighbours === 3) {value = 1;} // reproduction
                 }
                 
-                newline.push(value);
+                newmatrix.push(value);
             }
-            newmatrix.push(newline);
         }
         this.cells = newmatrix;
     },
@@ -111,14 +108,23 @@ var G_MATRIX = {
     init: function () {
         var matrix = [];
         for (var i=0; i < this.config.matsize; ++i) {
-            line = [];
             for (var j = 0; j < this.config.matsize; ++j) {
                 // push random value: 0 or 1.
-                line.push(Math.floor(Math.random() * 2));
+                matrix.push(Math.floor(Math.random() * 2));
             }
-            matrix.push(line);
         }
         this.cells =  matrix;
+    },
+
+    blink: function() {
+	this.config.matsize = 5;
+	this.config.cellsize = 20;
+	var matrix = [0,0,0,0,0,
+		      0,0,1,0,0,
+		      0,1,0,1,0,
+		      0,1,0,1,0,
+		      0,0,1,0,0];
+	this.cells = matrix;
     }
 };
 
@@ -139,5 +145,4 @@ window.onload = function () {
         G_MATRIX.next_iteration();
         
     }, G_MATRIX.config.refresh_rate);
-
 };
