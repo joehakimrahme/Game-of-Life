@@ -11,10 +11,10 @@ var G_MATRIX = {
 
         stroked: false, // if true, will draw the borders of each cells
 
-        start_pos: [0, 10], // Coordinates of the top right corner of the matrix
+        start_pos: [0, 0], // Coordinates of the top right corner of the matrix
                            // relative to the beginning of the canvas.
 
-        refresh_rate: 100, // speed of evolution of the game (in ms)
+        refresh_rate: 1000 / 60, // speed of evolution of the game (in ms)
     },
 
     get_cell_value: function (i, j) {
@@ -55,6 +55,8 @@ var G_MATRIX = {
 
                 if (this.config.stroked)
                     context.stroke();
+
+		context.closePath();
                 
                 x += this.config.cellsize;
             }
@@ -129,20 +131,44 @@ var G_MATRIX = {
 };
 
 
+// polyfill to get a RequestAnimationFrame
+window.requestAnimFrame = (function(callback) {
+
+    return window.requestAnimationFrame ||
+     	window.webkitRequestAnimationFrame ||
+    	window.mozRequestAnimationFrame ||
+    	window.oRequestAnimationFrame ||
+    	window.msRequestAnimationFrame ||
+	function(callback) {
+            window.setTimeout(callback, G_MATRIX.config.refresh_rate);
+	};
+})();
+
+
+function animate (canvas) {
+
+    var context = canvas.getContext('2d');
+
+    context.clearRect(0, 0, canvas.width, canvas.height);
+
+    G_MATRIX.draw(context);
+
+    G_MATRIX.next_iteration();
+
+    // request new frame
+    requestAnimFrame(function() {
+        animate(canvas);
+    });
+}
+    
+
 window.onload = function () {
     var canvas = document.getElementById('myCanvas');
 
     // random initial state
+    //G_MATRIX.blink();
     G_MATRIX.init();
 
-    // infinite loop drawing the successive states of the matrix
-    setInterval(function() {
-
-        var context = canvas.getContext('2d');
-
-        context.clearRect(0, 0, canvas.width, canvas.height);
-        G_MATRIX.draw(context);
-        G_MATRIX.next_iteration();
-        
-    }, G_MATRIX.config.refresh_rate);
+    // launch animation
+    animate(canvas);
 };
