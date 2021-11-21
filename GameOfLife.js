@@ -1,76 +1,82 @@
-var G_MATRIX = {
-  config: {
-    matsize: 100, // size of the side of the square.
-    // eg: 64 creates a 64x64 matrix.
+class GameOfLife {
+  constructor() {
+    // Size of the side of the square eg: 64 creates a 64x64 matrix.
+    this.matsize = 100;
 
-    cellsize: 2, // size of the side of a single cell
+    // Size of the side of a single cell
+    this.cellsize = 2;
 
-    colors: ["black", "white"], // [background, foreground]
+    // [background, foreground]
+    this.colors = ["black", "white"];
 
-    stroked: false, // if true, will draw the borders of each cells
+    // if true, will draw the borders of each cells
+    this.stroked = false;
 
-    start_pos: [0, 0], // Coordinates of the top right corner of the matrix
-    // relative to the beginning of the canvas.
+    // Coordinates of the top right corner of the matrix relative to the beginning of the canvas.
+    this.start_pos = [0, 0];
 
-    refresh_rate: 1000 / 60, // speed of evolution of the game (in ms)
+    // speed of evolution of the game (in ms)
+    this.refresh_rate = 1000 / 60;
 
-    isRunning: false,
+    //Game of life is not running initially
+    this.isRunning = false;
 
-    initialState: true,
-  },
+    this.initialState = true;
+  }
 
-  get_cell_value: function (i, j) {
+  get_cell_value = (i, j) => {
     if (i < 0) {
-      i += this.config.matsize;
+      i += this.matsize;
     }
 
-    if (i >= this.config.matsize) {
-      i -= this.config.matsize;
+    if (i >= this.matsize) {
+      i -= this.matsize;
     }
 
     if (j < 0) {
-      j += this.config.matsize;
+      j += this.matsize;
     }
 
-    if (j >= this.config.matsize) {
-      j -= this.config.matsize;
+    if (j >= this.matsize) {
+      j -= this.matsize;
     }
 
-    return this.cells[i + j * this.config.matsize];
-  },
+    return this.cells[i + j * this.matsize];
+  };
 
   // draw the matrix on the context given in argument
-  draw: function (context) {
-    var x = this.config.start_pos[0];
-    var y = this.config.start_pos[1];
+  draw = (context) => {
+    var x = this.start_pos[0];
+    var y = this.start_pos[1];
 
-    for (var i = 0; i < this.config.matsize; i++) {
-      for (var j = 0; j < this.config.matsize; j++) {
+    for (var i = 0; i < this.matsize; i++) {
+      for (var j = 0; j < this.matsize; j++) {
         context.beginPath();
-        context.rect(x, y, this.config.cellsize, this.config.cellsize);
-        context.fillStyle = this.config.colors[this.get_cell_value(j, i)];
+        context.rect(x, y, this.cellsize, this.cellsize);
+        context.fillStyle = this.colors[this.get_cell_value(j, i)];
         context.fill();
 
-        if (this.config.stroked) context.stroke();
+        if (this.stroked) context.stroke();
 
         context.closePath();
 
-        x += this.config.cellsize;
+        x += this.cellsize;
       }
 
       // beginning of the next line
-      x = this.config.start_pos[0];
-      y += this.config.cellsize;
+      x = this.start_pos[0];
+      y += this.cellsize;
     }
-  },
+  };
 
   // updates the value of 'cells' according to the laws
   // of Conway's Game of Life
-  next_iteration: function () {
-    newmatrix = [];
+  next_iteration = () => {
+    const newmatrix = [];
+    let neighbours;
 
-    for (i = 0; i < this.config.matsize; ++i) {
-      for (j = 0; j < this.config.matsize; ++j) {
+    for (let i = 0; i < this.matsize; ++i) {
+      for (let j = 0; j < this.matsize; ++j) {
         // gathering the number of live neighbours
         neighbours = this.get_cell_value(j - 1, i - 1);
         neighbours += this.get_cell_value(j - 1, i);
@@ -82,7 +88,7 @@ var G_MATRIX = {
         neighbours += this.get_cell_value(j + 1, i + 1);
 
         // the current value of the cell
-        value = this.get_cell_value(j, i);
+        let value = this.get_cell_value(j, i);
 
         // modification of the value according to Conway's laws
         if (value === 1) {
@@ -105,20 +111,22 @@ var G_MATRIX = {
       }
     }
     this.cells = newmatrix;
-  },
+  };
 
   // helper function that returns a randomly filled matrix
-  init: function () {
+  init = () => {
     var matrix = [];
-    for (var i = 0; i < this.config.matsize; ++i) {
-      for (var j = 0; j < this.config.matsize; ++j) {
+    for (var i = 0; i < this.matsize; ++i) {
+      for (var j = 0; j < this.matsize; ++j) {
         // push random value: 0 or 1.
         matrix.push(Math.floor(Math.random() * 2));
       }
     }
     this.cells = matrix;
-  },
-};
+  };
+}
+
+const G_MATRIX = new GameOfLife();
 
 // polyfill to get a RequestAnimationFrame
 window.requestAnimFrame = (function (callback) {
@@ -138,7 +146,7 @@ function animate(canvas) {
   var canvas = document.getElementById("myCanvas");
   var context = canvas.getContext("2d");
 
-  if (G_MATRIX.config.isRunning) {
+  if (G_MATRIX.isRunning) {
     context.clearRect(0, 0, canvas.width, canvas.height);
     G_MATRIX.draw(context);
     G_MATRIX.next_iteration();
@@ -155,23 +163,23 @@ function animate(canvas) {
 }
 
 function play() {
-  if (G_MATRIX.config.initialState) {
+  if (G_MATRIX.initialState) {
     var canvas = document.getElementById("myCanvas");
     G_MATRIX.init();
-    G_MATRIX.config.isRunning = true;
+    G_MATRIX.isRunning = true;
     animate(canvas);
-    G_MATRIX.config.initialState = false;
+    G_MATRIX.initialState = false;
   } else {
     var canvas = document.getElementById("myCanvas");
     G_MATRIX.next_iteration();
-    G_MATRIX.config.isRunning = true;
+    G_MATRIX.isRunning = true;
     animate(canvas);
   }
 }
 
 function pause() {
   var canvas = document.getElementById("myCanvas");
-  G_MATRIX.config.isRunning = false;
+  G_MATRIX.isRunning = false;
   animate(canvas);
 }
 
