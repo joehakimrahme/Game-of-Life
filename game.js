@@ -175,12 +175,6 @@ function pause() {
   animate(canvas);
 }
 
-function reset() {
-  var canvas = document.getElementById("myCanvas");
-  var context = canvas.getContext("2d");
-  context.clearRect(0, 0, canvas.width, canvas.height);
-}
-
 document.getElementById("playButton").addEventListener("click", play);
 document.getElementById("pauseButton").addEventListener("click", pause);
 document.getElementById("resetButton").addEventListener("click", function () {
