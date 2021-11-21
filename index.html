@@ -4,15 +4,41 @@
     <meta charset="utf-8" />
     <title>Conway's Game of Life</title>
     <style type="text/css" media="screen">
-      #myCanvas{
-    	border: 1px solid #9c9898;
+      #myCanvas {
+        border: 1px solid #9c9898;
+      }
+
+      body {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        height: 100vh;
+      }
+
+      main {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 400px;
+      }
+
+      canvas {
+        margin-bottom: 2rem;
       }
     </style>
-    <script type="text/javascript" src="game.js"></script>
   </head>
 
   <body>
-    <h1>Conway's Game of Life</h1>
-    <canvas id="myCanvas" width="1000" height="750"></canvas>
+    <main>
+      <h1>Conway's Game of Life</h1>
+      <canvas id="myCanvas" width="200" height="200"></canvas>
+      <div>
+        <button id="playButton">Play</button>
+        <button id="pauseButton">Pause</button>
+        <button id="resetButton">Reset</button>
+      </div>
+    </main>
+    <script type="text/javascript" src="GameOfLife.js"></script>
   </body>
 </html>
