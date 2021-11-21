@@ -135,19 +135,32 @@ window.requestAnimFrame = (function (callback) {
 function animate(canvas) {
   var canvas = document.getElementById("myCanvas");
   var context = canvas.getContext("2d");
-  context.clearRect(0, 0, canvas.width, canvas.height);
-  G_MATRIX.draw(context);
-  G_MATRIX.next_iteration();
+  if (G_MATRIX.config.isRunning) {
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    G_MATRIX.draw(context);
+    G_MATRIX.next_iteration();
 
-  // request new frame
-  requestAnimFrame(function () {
-    animate(canvas);
-  });
+    // request new frame
+    requestAnimFrame(function () {
+      animate(canvas);
+    });
+  } else {
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    G_MATRIX.draw(context);
+    G_MATRIX.next_iteration();
+  }
 }
 
 function play() {
   var canvas = document.getElementById("myCanvas");
+  G_MATRIX.config.isRunning = true;
   G_MATRIX.init();
+  animate(canvas);
+}
+
+function pause() {
+  var canvas = document.getElementById("myCanvas");
+  G_MATRIX.config.isRunning = false;
   animate(canvas);
 }
 
@@ -158,6 +171,7 @@ function reset() {
 }
 
 document.getElementById("playButton").addEventListener("click", play);
+document.getElementById("pauseButton").addEventListener("click", pause);
 document.getElementById("resetButton").addEventListener("click", function () {
   location.reload();
 });
