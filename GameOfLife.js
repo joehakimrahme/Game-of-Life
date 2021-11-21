@@ -128,21 +128,7 @@ class GameOfLife {
 
 const G_MATRIX = new GameOfLife();
 
-// polyfill to get a RequestAnimationFrame
-window.requestAnimFrame = (function (callback) {
-  return (
-    window.requestAnimationFrame ||
-    window.webkitRequestAnimationFrame ||
-    window.mozRequestAnimationFrame ||
-    window.oRequestAnimationFrame ||
-    window.msRequestAnimationFrame ||
-    function (callback) {
-      window.setTimeout(callback, G_MATRIX.config.refresh_rate);
-    }
-  );
-})();
-
-function animate(canvas) {
+const animate = (canvas) => {
   var canvas = document.getElementById("myCanvas");
   var context = canvas.getContext("2d");
 
@@ -151,8 +137,7 @@ function animate(canvas) {
     G_MATRIX.draw(context);
     G_MATRIX.next_iteration();
 
-    // request new frame
-    requestAnimFrame(function () {
+    requestAnimationFrame(() => {
       animate(canvas);
     });
   } else {
@@ -160,9 +145,9 @@ function animate(canvas) {
     G_MATRIX.draw(context);
     G_MATRIX.next_iteration();
   }
-}
+};
 
-function play() {
+const play = () => {
   if (G_MATRIX.initialState) {
     var canvas = document.getElementById("myCanvas");
     G_MATRIX.init();
@@ -175,13 +160,13 @@ function play() {
     G_MATRIX.isRunning = true;
     animate(canvas);
   }
-}
+};
 
-function pause() {
+const pause = () => {
   var canvas = document.getElementById("myCanvas");
   G_MATRIX.isRunning = false;
   animate(canvas);
-}
+};
 
 document.getElementById("playButton").addEventListener("click", play);
 document.getElementById("pauseButton").addEventListener("click", pause);
