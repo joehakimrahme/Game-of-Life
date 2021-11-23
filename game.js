@@ -15,27 +15,29 @@ var G_MATRIX = {
                            // relative to the beginning of the canvas.
 
         refresh_rate: 1000 / 60, // speed of evolution of the game (in ms)
+
+        isRunning : false,
+
+        initialState: true
     },
 
     get_cell_value: function (i, j) {
 
         if (i<0) {
             i += this.config.matsize;
-	}
+        }
 
         if (i >= this.config.matsize) {
             i -= this.config.matsize;
-	}
-	
+        }
+ 
         if (j < 0) {
             j += this.config.matsize;
-	}
+        }
 
         if (j >= this.config.matsize) {
             j -= this.config.matsize;
-	}
-	
-
+        }
         return this.cells[i + j*this.config.matsize];
     },
 
@@ -56,7 +58,7 @@ var G_MATRIX = {
                 if (this.config.stroked)
                     context.stroke();
 
-		context.closePath();
+                context.closePath();
                 
                 x += this.config.cellsize;
             }
@@ -147,8 +149,10 @@ window.requestAnimFrame = (function(callback) {
 
 function animate (canvas) {
 
+    var canvas = document.getElementById("myCanvas");
     var context = canvas.getContext('2d');
 
+    if (G_MATRIX.config.isRunning) {
     context.clearRect(0, 0, canvas.width, canvas.height);
 
     G_MATRIX.draw(context);
@@ -159,16 +163,36 @@ function animate (canvas) {
     requestAnimFrame(function() {
         animate(canvas);
     });
+  } else {
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    G_MATRIX.draw(context);
+    G_MATRIX.next_iteration();
+  }
 }
-    
 
-window.onload = function () {
-    var canvas = document.getElementById('myCanvas');
-
-    // random initial state
-    //G_MATRIX.blink();
+function play() {
+  if (G_MATRIX.config.initialState) {
+    var canvas = document.getElementById("myCanvas");
     G_MATRIX.init();
-
-    // launch animation
+    G_MATRIX.config.isRunning = true;
     animate(canvas);
-};
+    G_MATRIX.config.initialState = false;
+  } else {
+    var canvas = document.getElementById("myCanvas");
+    G_MATRIX.next_iteration();
+    G_MATRIX.config.isRunning = true;
+    animate(canvas);
+  }
+}
+
+function pause() {
+  var canvas = document.getElementById("myCanvas");
+  G_MATRIX.config.isRunning = false;
+  animate(canvas);
+}
+
+document.getElementById("playButton").addEventListener("click", play);
+document.getElementById("pauseButton").addEventListener("click", pause);
+document.getElementById("resetButton").addEventListener("click", function () {
+  location.reload();
+});
