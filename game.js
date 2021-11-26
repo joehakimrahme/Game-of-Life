@@ -25,7 +25,7 @@ var G_MATRIX = {
 
         if (i<0) {
             i += this.config.matsize;
-	}
+        }
 
         if (i >= this.config.matsize) {
             i -= this.config.matsize;
@@ -33,7 +33,7 @@ var G_MATRIX = {
  
         if (j < 0) {
             j += this.config.matsize;
-	}
+        }
 
         if (j >= this.config.matsize) {
             j -= this.config.matsize;
@@ -58,7 +58,7 @@ var G_MATRIX = {
                 if (this.config.stroked)
                     context.stroke();
 
-		context.closePath();
+                context.closePath();
                 
                 x += this.config.cellsize;
             }
