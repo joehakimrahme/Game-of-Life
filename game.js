@@ -15,6 +15,10 @@ var G_MATRIX = {
                            // relative to the beginning of the canvas.
 
         refresh_rate: 1000 / 60, // speed of evolution of the game (in ms)
+
+        isRunning : false,
+
+        initialState: true
     },
 
     get_cell_value: function (i, j) {
@@ -147,9 +151,13 @@ window.requestAnimFrame = (function(callback) {
 
 function animate (canvas) {
 
+    var canvas = document.getElementById("myCanvas");
+    
     var context = canvas.getContext('2d');
 
-    context.clearRect(0, 0, canvas.width, canvas.height);
+    if (G_MATRIX.config.isRunning){
+        context.clearRect(0, 0, canvas.width, canvas.height);
+    
 
     G_MATRIX.draw(context);
 
@@ -159,16 +167,36 @@ function animate (canvas) {
     requestAnimFrame(function() {
         animate(canvas);
     });
+
+} else {
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    G_MATRIX.draw(context);
+    G_MATRIX.next_iteration();
+  }
 }
     
-
-window.onload = function () {
-    var canvas = document.getElementById('myCanvas');
-
-    // random initial state
-    //G_MATRIX.blink();
-    G_MATRIX.init();
-
-    // launch animation
+function play() {
+    if (G_MATRIX.config.initialState) {
+      var canvas = document.getElementById("myCanvas");
+      G_MATRIX.init();
+      G_MATRIX.config.isRunning = true;
+      animate(canvas);
+      G_MATRIX.config.initialState = false;
+    } else {
+      var canvas = document.getElementById("myCanvas");
+      G_MATRIX.next_iteration();
+      G_MATRIX.config.isRunning = true;
+      animate(canvas);
+    }
+  }
+  
+  function pause() {
+    var canvas = document.getElementById("myCanvas");
+    G_MATRIX.config.isRunning = false;
     animate(canvas);
-};
+  }
+  
+  document.getElementById("playButton").addEventListener("click", play);
+  document.getElementById("pauseButton").addEventListener("click", pause);
+  document.getElementById("resetButton").addEventListener("click", function () {location.reload();
+  });
